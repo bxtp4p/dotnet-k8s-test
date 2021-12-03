@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dotnettest
+spec:
+  selector:
+    matchLabels:
+      app: dotnettest
+  template:
+    metadata:
+      labels:
+        app: dotnettest
+    spec:
+      terminationGracePeriodSeconds: 5
+      tolerations:
+      nodeSelector:
+      initContainers:
+        - name: sfx-instrumentation
+          image: bxtp4p/sfx-dotnet-tracer
+          volumeMounts:
+          - mountPath: /opt/signalfx-dotnet-tracing
+            name: sfx-instrumentation
+      containers:
+        - name: app
+          image: bxtp4p/aspnetapp
+          ports:
+            - containerPort: 80
+          env:
+            - name: NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: CORECLR_ENABLE_PROFILING
+              value: '1'
+            - name: CORECLR_PROFILER
+              value: '{B4C89B0F-9908-4F73-9F59-0D77C5A06874}'
+            - name: CORECLR_PROFILER_PATH
+              value: '/opt/signalfx-dotnet-tracing/SignalFx.Tracing.ClrProfiler.Native.so'
+            - name: SIGNALFX_INTEGRATIONS
+              value: '/opt/signalfx-dotnet-tracing/integrations.json'
+            - name: SIGNALFX_DOTNET_TRACER_HOME
+              value: '/opt/signalfx-dotnet-tracing'
+            - name: SIGNALFX_SERVICE_NAME
+              value: 'TestASPNetCoreService'
+            - name: SIGNALFX_ENV
+              value: 'dotnettest'
+            - name: SIGNALFX_ENDPOINT_URL
+              value: 'http://$(NODE_IP):9080/v1/trace'
+            - name: SIGNALFX_TRACE_DEBUG
+              value: 'true'
+            - name: SIGNALFX_STDOUT_LOG_ENABLED
+              value: 'true'
+            
+          volumeMounts:
+          - mountPath: /opt/signalfx-dotnet-tracing
+            name: sfx-instrumentation
+            readOnly: true
+      volumes:
+      - emptyDir: {}
+        name: sfx-instrumentation
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dotnettestservice
+spec:
+  type: LoadBalancer
+  selector:
+    app: dotnettest
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 80
