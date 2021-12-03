@@ -2,7 +2,7 @@
 
 An example for a customer on how to use Splunk APM on a .NET application running in Kubernetes.
 
-The `Dockerfile` in this repo is used to load the `signalfx-dotnet-tracing` library files to their default directory (`/opt/signalf-dotnet-tracing`).
+The `Dockerfile` in this repo is used to load the `signalfx-dotnet-tracing` library files to their default directory (`/opt/signalfx-dotnet-tracing`).
 
 Then, it's used as an initContainer in the `example.yaml` manifest so that the files are then available via a volumeMount in the application container.
 
