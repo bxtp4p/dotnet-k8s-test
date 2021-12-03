@@ -18,7 +18,13 @@ Note, I've enabled debugging on the tracer for this example so that you can see 
 
 Also note that in my setup (how I've tested this), the spans are being sent to an OTEL collector running in my Kubernetes cluster.
 
-Lastly, the application can be reached by:
+To test this out, run:
+
+```
+$ kubectl apply -f example.yaml
+```
+
+Wait for a few seconds to make sure the application container is running. The application can then be reached by:
 
 ```
 $ kubectl port-forward service/dotnettestservice 8080:8080
