@@ -31,3 +31,8 @@ $ kubectl port-forward service/dotnettestservice 8080:8080
 ```
 
 Then open up http://localhost:8080 in your browser to send some traffic to the app.
+
+To view the logs:
+```
+$ kubectl logs deployment.apps/dotnettest
+```
